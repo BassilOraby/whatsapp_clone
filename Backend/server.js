@@ -1,5 +1,6 @@
 import express from "express"
 import mongoose from "mongoose"
+import Cors from "cors"
 import Pusher from "pusher";
 import Messages from './dbMessages.js'
 
@@ -11,14 +12,36 @@ const connection_url = 'mongodb+srv://BassilOraby:vFF74EhiyJ&r%23%2F4@cluster0.j
 db.once('open',()=>{
     console.log("DB connected")
     // Here is where we create changeStream for Mongodb to keep track of changes in a certain collection
-    const msgCollection = db.collection("messagecontent") 
+    const msgCollection = db.collection("messagecontents") 
     const changeStream = msgCollection.watch()
+    // Here is where we use MongoDB's changeStream to aggregate it with pusher
     changeStream.on('change', (change) => {
-        console.log(change)
+        console.log("Change Occured", change)
+        if (change.operationType === 'insert') {
+            const messageDetails = change.fullDocument
+            pusher.trigger('messages', 'inserted',
+            {
+                name : messageDetails.name,
+                message : messageDetails.message,
+                timestamp : messageDetails.timestamp,
+                received : messageDetails.received
+            }
+        )
+        } else {
+            console.log('Error triggering pusher')
+        }
     })
 })
 
+app.use(Cors())
+
 app.use(express.json())
+
+app.use((req,res,next)=>{
+    res.setHeader("Access-Comtrol-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Headers", "*")
+    next()
+})
 
 const pusher = new Pusher({
     appId: "1271541",

@@ -1,3 +1,7 @@
+import {initializeApp} from 'firebase/app'
+import {getFirestore} from 'firebase/firestore/lite'
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyB6q6U6wjpQn4SBMTSYozA-I1nB1LfYAsg",
     authDomain: "whatsapp-clone-b8c39.firebaseapp.com",
@@ -6,3 +10,11 @@ const firebaseConfig = {
     messagingSenderId: "18167635334",
     appId: "1:18167635334:web:ccf402252e0d0eaf30e007"
   };
+
+  const firebaseApp = initializeApp(firebaseConfig)
+  const db = getFirestore(firebaseApp)
+  //const auth = firebase.auth()
+  //const provider = new firebase.auth.GoogleAuthProvider()
+
+  //export {auth, provider}
+  export default db

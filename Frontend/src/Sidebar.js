@@ -1,5 +1,7 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import db from '../src/Firebase.js'
 import './Sidebar.css'
+import {collection, getDocs} from 'firebase/firestore/lite'
 import DonutLargeIcon from '@material-ui/icons/DonutLarge'
 import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -8,6 +10,23 @@ import { SearchOutlined } from '@material-ui/icons';
 import SidebarChat from './SidebarChat';
 
 function Sidebar() {
+    const [rooms, setRooms] = useState([])
+
+    async function getChats() {
+        const chatsCol = collection(db, 'Whatsapp-Messages')
+        const chatsSnapshot = await getDocs(chatsCol)
+        const chatsList = chatsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data()
+        })
+        )
+        return chatsList
+    }
+    
+    useEffect(() => {
+        getChats().then(List => setRooms(List)).catch(err => console.log(err))
+    }, [])
+
     return (
         <div className="sideBar">
             <div className="sidebar__header">
@@ -31,9 +50,10 @@ function Sidebar() {
                 </div>
             </div>
             <div className="sidebar_chats">
-                <SidebarChat />
-                <SidebarChat />
-                <SidebarChat />
+                <SidebarChat addNewChat={true} />
+                {rooms.map(room => (
+                    <SidebarChat key={room.id} id={room.id} name={room.data.name} />
+                ))}
             </div>
         </div>
     )
