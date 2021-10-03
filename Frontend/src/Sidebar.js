@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import db from '../src/Firebase.js'
 import './Sidebar.css'
-import {collection, getDocs} from 'firebase/firestore/lite'
+import {collection, getDocs, addDoc} from 'firebase/firestore/lite'
 import DonutLargeIcon from '@material-ui/icons/DonutLarge'
 import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -11,6 +11,7 @@ import SidebarChat from './SidebarChat';
 
 function Sidebar() {
     const [rooms, setRooms] = useState([])
+    const [Flag, setFlag] = useState(false)
 
     async function getChats() {
         const chatsCol = collection(db, 'Whatsapp-Messages')
@@ -22,10 +23,22 @@ function Sidebar() {
         )
         return chatsList
     }
+
+    async function createChat () {
+        const roomName = prompt("Please enter name for chat")
+
+        if (roomName) {
+            await addDoc(collection(db, "Whatsapp-Messages"), {
+                name: roomName
+              });
+            setFlag(!Flag)
+        }
+    };
+
     
     useEffect(() => {
         getChats().then(List => setRooms(List)).catch(err => console.log(err))
-    }, [])
+    }, [Flag])
 
     return (
         <div className="sideBar">
@@ -50,7 +63,7 @@ function Sidebar() {
                 </div>
             </div>
             <div className="sidebar_chats">
-                <SidebarChat addNewChat={true} />
+                <SidebarChat addNewChat={true} createChat={() => createChat()} />
                 {rooms.map(room => (
                     <SidebarChat key={room.id} id={room.id} name={room.data.name} />
                 ))}
