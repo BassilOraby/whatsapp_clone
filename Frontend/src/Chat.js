@@ -3,18 +3,23 @@ import { AttachFile, MicOutlined, SearchOutlined } from '@material-ui/icons'
 import MoreVert from '@material-ui/icons/MoreVert'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { collection, query, where, getDocs } from 'firebase/firestore/lite'
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore/lite'
+import { doc, setDoc } from 'firebase/firestore/lite'
+import { Timestamp } from 'firebase/firestore'
 import db from './Firebase.js'
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon"
 import React from 'react'
 import './Chat.css'
 import axios from "./axios.js"
+import { useStateValue } from './StateProvider.js'
 
 function Chat({messages}) {
     const [input, setInput] = useState('')
     const [seed,setSeed] = useState("")
     const { roomId } = useParams();
     const [RoomName, setRoomName] = useState("")
+    const [msgs, setMsgs] = useState([])
+    const [{ user }, dispatch] = useStateValue()
 
 
     async function setRoom(roomId) {
@@ -23,11 +28,30 @@ function Chat({messages}) {
         return querySnapshot
     }
 
+    async function setmessages(doc) {
+        const q = query(collection(db, `Whatsapp-Messages/${doc.id}/messages`), orderBy("timestamp", "asc"))
+        const querySnapshot = await getDocs(q);
+        return querySnapshot
+    }
+
+    async function addmessages() {
+        await setDoc(doc(db, `Whatsapp-Messages/${roomId}/messages`,"newMessage".concat(Math.random().toString())), {
+            message: input,
+            name: user.displayName,
+            timestamp: Timestamp.now().toDate()
+        })
+    }
+
+
     useEffect(() => {
         if (roomId) {
             setRoom(roomId).then((QS) => {
                 QS.forEach((doc) => {
                     setRoomName(doc.data().name)
+                    setmessages(doc).then(snapShot => 
+                        setMsgs(snapShot.docs.map(document => 
+                            document.data()))
+                        )
                 })
             }).catch((err) => console.log(err))
         }
@@ -39,12 +63,13 @@ function Chat({messages}) {
 
     const sendMessage = (e) => {
         e.preventDefault()
-        axios.post('/api/v1/messages/new',{
-            message : input,
-            name : "Sonny Sanghaa",
-            timestamp : "13:26",
-            received : true
-    })
+        //axios.post('/api/v1/messages/new',{
+            //message : input,
+            //name : "Sonny Sanghaa",
+            //timestamp : "13:26",
+            //received : true
+    //})
+        addmessages()
     setInput("")
     }
     
@@ -69,13 +94,14 @@ function Chat({messages}) {
                     </div>
                 </div>
                 <div className="chat__body">
-                    {messages.map(message=>{
+                    {msgs.map(message=>{
                         return (
-                        <p className={`chat__message ${message.received && "chat__receiver"}`}>
+                        <p className={`chat__message ${//message.received 
+                            message.name === user.displayName && "chat__receiver"}`}>
                             <span className = "chat__name">{message.name}</span>
                                 {message.message}
                             <span className="chat__timestamp">
-                                {message.timestamp}
+                                {message.timestamp.toDate().toString()}
                             </span>
                         </p>
                         )

@@ -6,10 +6,11 @@ import Pusher from 'pusher-js';
 import axios from './axios.js';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
 import Login from './Login.js';
+import { useStateValue } from './StateProvider.js'
 
 function App() {
   const [messages, setMessages] = useState([])
-  const [user, setUser] = useState(null)
+  const [{ user }, dispatch] = useStateValue()
 
   useEffect(()=>{
     axios.get('/messages/sync').then(response => {

@@ -8,10 +8,12 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { IconButton, Avatar } from '@material-ui/core'
 import { SearchOutlined } from '@material-ui/icons';
 import SidebarChat from './SidebarChat';
+import { useStateValue } from './StateProvider.js'
 
 function Sidebar() {
     const [rooms, setRooms] = useState([])
     const [Flag, setFlag] = useState(false)
+    const [{ user }, dispatch] = useStateValue()
 
     async function getChats() {
         const chatsCol = collection(db, 'Whatsapp-Messages')
@@ -43,7 +45,7 @@ function Sidebar() {
     return (
         <div className="sideBar">
             <div className="sidebar__header">
-                <Avatar src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Brad_Pitt_2019_by_Glenn_Francis.jpg/1200px-Brad_Pitt_2019_by_Glenn_Francis.jpg'/>
+                <Avatar src={user?.photoURL}/>
                 <div className="sidebar__headerRight">
                     <IconButton>
                         <DonutLargeIcon />

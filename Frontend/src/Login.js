@@ -3,8 +3,12 @@ import { Button } from '@material-ui/core'
 import './Login.css'
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth"; 
 import { auth, provider } from './Firebase.js'
+import { actionTypes } from './reducer.js'
+import { useStateValue } from './StateProvider';
 
 function Login() {
+    const [{}, dispatch] = useStateValue();
+
     const signIn = () => {
         //howa ezay ana mesh 3aref a-access el provider object fee el resolve betaa3 el promise m3a eno howa howa nafs object GoogleAuthProvider
         //elly ana ba3melo import men firebase/auth ??
@@ -15,8 +19,11 @@ function Login() {
             const token = credential.accessToken;
             // The signed-in user info.
             const user = result.user;
-            // ...
             console.log(result)
+            dispatch({
+                type: actionTypes.SET_USER,
+                user: user
+            })
         }).catch((error) => {
             // Handle Errors here.
             const errorCode = error.code;
