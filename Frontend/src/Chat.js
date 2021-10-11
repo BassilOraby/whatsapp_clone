@@ -3,9 +3,7 @@ import { AttachFile, MicOutlined, SearchOutlined } from '@material-ui/icons'
 import MoreVert from '@material-ui/icons/MoreVert'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore/lite'
-import { doc, setDoc } from 'firebase/firestore/lite'
-import { Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, orderBy, doc, setDoc, Timestamp } from 'firebase/firestore'
 import db from './Firebase.js'
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon"
 import React from 'react'
@@ -79,7 +77,14 @@ function Chat({messages}) {
                 <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`}/>
                 <div className="chat__headerInfo">
                     <h3>{RoomName}</h3>
-                    <p>Last Seen at ...</p>
+                    <p>
+                        last seen {" "}
+                        {
+                            new Date(
+                                messages[messages.length - 1]?.timestamp?.toDate()
+                                ).toUTCString()
+                        }
+                    </p>
                 </div>
                     <div className="chat__headerRight">
                         <IconButton>

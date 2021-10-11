@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import db from '../src/Firebase.js'
 import './Sidebar.css'
-import {collection, getDocs, addDoc} from 'firebase/firestore/lite'
+import {collection, getDocs, addDoc} from 'firebase/firestore'
 import DonutLargeIcon from '@material-ui/icons/DonutLarge'
 import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from '@material-ui/icons/MoreVert'
